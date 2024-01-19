@@ -29,12 +29,15 @@ let trams = [
 window.addEventListener("load", (event) => {
     const date = new Date();
     let dayIndex = date.getDay() - 1;
+    // dayIndex = 0;
+    console.log(dayIndex);
     if (dayIndex == -1) {
         dayIndex = 6;
     }
 
     let dayArray = week[dayIndex];
 
+    // let time = 13 * 60 + 0
     let time = date.getHours() * 60 + date.getMinutes()
 
     let empty = true;
@@ -49,10 +52,9 @@ window.addEventListener("load", (event) => {
             empty = false;
             const main = document.createElement("div");
             main.className = "schedule__item";
-            if (hour.name == "pause") {
+            if (hour.name == "pause" || hour.name == "free") {
                 main.className = "schedule__item schedule__item--pause";
             }
-            const para = document.createElement("p");
             let futureTime = dayArray[parseInt(key) + 1];
             let futureTimeArr = futureTime.start.split(":");
             let etaTime = (timeArr[0] * 60 + parseInt(timeArr[1])) - time;
@@ -63,9 +65,15 @@ window.addEventListener("load", (event) => {
                 etaText += etaHours + " hrs ";
             }
             etaText += etaMinutes + " mins";
-            let node = document.createTextNode(hour.name + " : " + timeArr[0] + ":" + timeArr[1] + " - " + futureTimeArr[0] + ":" + futureTimeArr[1] + " (in " + etaText + ")");
+
+            let para = document.createElement("p");
+            let node = document.createTextNode(hour.name);
             para.appendChild(node);
+            let para2 = document.createElement("p");
+            node = document.createTextNode(timeArr[0] + ":" + timeArr[1] + " - " + futureTimeArr[0] + ":" + futureTimeArr[1] + " (in " + etaText + ")");
+            para2.appendChild(node);
             main.appendChild(para);
+            main.appendChild(para2);
 
             const element = document.getElementById("today");
             element.appendChild(main);
@@ -76,7 +84,31 @@ window.addEventListener("load", (event) => {
         const main = document.createElement("div");
         main.className = "schedule__item";
         const para = document.createElement("p");
-        let node = document.createTextNode("Nothing here!");
+        let node;
+
+        if (dayIndex < 5) {
+            const end = dayArray[dayArray.length - 1];
+            let endTimeArr = end.start.split(":");
+            let endTime = parseInt(endTimeArr[0]) * 60 + parseInt(endTimeArr[1]);
+    
+            let etaTime = (endTimeArr[0] * 60 + parseInt(endTimeArr[1])) - time;
+            let etaMinutes = etaTime % 60;
+            let etaHours = (etaTime - etaMinutes) / 60;
+            let etaText = "";
+            if (etaHours > 0) {
+                etaText += etaHours + " hrs ";
+            }
+            etaText += etaMinutes + " mins";
+
+            if (endTime < time) {
+                node = document.createTextNode("Nothing here!");
+            } else {
+                node = document.createTextNode(end.name + ": " + endTimeArr[0] + ":" + endTimeArr[1] + " (in " + etaText + ")");
+            }
+        } else {
+            node = document.createTextNode("Nothing here!");
+        }
+
         para.appendChild(node);
         main.appendChild(para);
 
@@ -100,11 +132,16 @@ window.addEventListener("load", (event) => {
     for (const hour of possibleTrams) {
         const main = document.createElement("div");
         main.className = "schedule__item schedule__item--tram";
-        const para = document.createElement("p");
         let timeArr = hour.split(" ")[1].split(":");
-        let node = document.createTextNode(hour.split(" ")[0] + " - " + timeArr[0] + ":" + timeArr[1]);
+        const para = document.createElement("p");
+        let node = document.createTextNode(hour.split(" ")[0]);
         para.appendChild(node);
         main.appendChild(para);
+        const para2 = document.createElement("p");
+        node = document.createTextNode(timeArr[0] + ":" + timeArr[1]);
+        para2.appendChild(node);
+        main.appendChild(para2);
+        
 
         const element = document.getElementById("trams");
         element.appendChild(main);

@@ -3,12 +3,16 @@
 :root {
     --bg-main: #090809;
     --bg-schedule: #8f0000;
-    --bg-item: #f44e3f;
-    --bg-item-pause: #ee8478;
+    --bg-item: #090809;
+    --bg-item-pause: #332220;
     --fg-title: #ffffff;
     --fg-schedule: #ffffff;
     --fg-item: #ffffff;
     --fg-item-pause: #ffffff;
+}
+
+* {
+    transition: all 0.5s;
 }
 
 body {
@@ -19,18 +23,19 @@ body {
 .title {
     color: var(--fg-title);
     text-align: center;
+    font-size: 2em;
 }
 
 .main {
     display: grid;
-    gap: 2rem;
-    margin: 1rem;
+    gap: 1rem;
+    margin: 1rem 0;
     align-items: start;
 }
 
 .schedule {
     align-items: center;
-    background-color: var(--bg-schedule);
+    background: linear-gradient(45deg, var(--bg-schedule), var(--bg-main));
     border-radius: 1rem;
 }
 
@@ -47,13 +52,17 @@ body {
 }
 
 .schedule__items--trams {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .schedule__item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
     color: var(--fg-item);
     background-color: var(--bg-item);
     border-radius: 0.5rem;
+    border: 2px solid var(--bg-schedule);
 }
 
 .schedule__item--pause {
@@ -63,7 +72,7 @@ body {
 
 .schedule__item > p {
     text-align: center;
-    margin: 1.5rem;
+    margin: 1.5rem 0.5rem;
 }
 
 .schedule__item--pause > p {
