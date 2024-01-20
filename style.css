@@ -53,7 +53,7 @@ body {
 }
 
 .schedule__items--trams {
-    grid-template-columns: repeat(2, 1fr);
+    /* grid-template-columns: repeat(2, 1fr); */
 }
 
 .schedule__item {

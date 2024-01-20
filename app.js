@@ -35,6 +35,12 @@ let trams2 = [
     "11 18:00", "5 18:08", "11 18:15", "5 18:23", "11 18:30", "11 18:45"
 ];
 
+let buss = [
+    "141 04:55", "141 05:25", "141 05:35", "141 05:50", "141 06:20", "141 06:50", "141 07:02", "141 07:25", 
+    "141 08:05", "141 09:05", "141 10:05", "141 12:05", "141 13:05", "141 13:50", "141 14:05", "141 14:35",
+    "141 14:50", "141 15:35", "141 16:35", "141 17:35"   
+]
+
 function addElement(elementTexts, elementClass, targetID) {
     const main = document.createElement("div");
     main.className = elementClass;
@@ -48,6 +54,29 @@ function addElement(elementTexts, elementClass, targetID) {
     element.appendChild(main);
 }
 
+function calcEtaTime(currTime, nextTime) {
+    let etaTime = nextTime - currTime;
+    if (etaTime == 0) {
+        return "now";
+    }
+    let etaMinutes = etaTime % 60;
+    let etaHours = (etaTime - etaMinutes) / 60;
+    let etaText = "in ";
+    if (etaHours > 0) {
+        if (etaHours > 1) {
+            etaText += etaHours + " hrs ";
+        } else {
+            etaText += "1 hr ";
+        }
+    }
+    if (etaMinutes > 1) {
+        etaText += etaMinutes + " mins";
+    } else {
+        etaText += "1 min";
+    }
+    return etaText;
+}
+
 function max(x, y) {
     if (y > x) {
         return y;
@@ -56,7 +85,7 @@ function max(x, y) {
     }
 }
 
-const testing = false;
+let testing = true;
 
 window.addEventListener("load", (event) => {
     const date = new Date();
@@ -75,7 +104,7 @@ window.addEventListener("load", (event) => {
     let time = date.getHours() * 60 + date.getMinutes()
 
     if (testing) {
-        time = 9 * 60 + 45;
+        time = 8 * 60 + 45;
     }
 
     let hourCount = 0;
@@ -93,17 +122,11 @@ window.addEventListener("load", (event) => {
 
             let futureTime = dayArray[parseInt(key) + 1];
             let futureTimeArr = futureTime.start.split(":");
-            let etaTime = (timeArr[0] * 60 + parseInt(timeArr[1])) - time;
-            let etaMinutes = etaTime % 60;
-            let etaHours = (etaTime - etaMinutes) / 60;
-            let etaText = "";
-            if (etaHours > 0) {
-                etaText += etaHours + " hrs ";
-            }
-            etaText += etaMinutes + " mins";
+
+            let etaText = calcEtaTime(time, timeArr[0] * 60 + parseInt(timeArr[1]));
 
             texts.push(hour.name);
-            texts.push(timeArr[0] + ":" + timeArr[1] + " - " + futureTimeArr[0] + ":" + futureTimeArr[1] + " (in " + etaText + ")");
+            texts.push(timeArr[0] + ":" + timeArr[1] + " - " + futureTimeArr[0] + ":" + futureTimeArr[1] + " (" + etaText + ")");
 
             if (hour.name == "pause" || hour.name == "free") {
                 addElement(texts, "schedule__item schedule__item--pause", "today");
@@ -120,18 +143,11 @@ window.addEventListener("load", (event) => {
             const end = dayArray[dayArray.length - 1];
             let endTimeArr = end.start.split(":");
             let endTime = parseInt(endTimeArr[0]) * 60 + parseInt(endTimeArr[1]);
-    
-            let etaTime = (endTimeArr[0] * 60 + parseInt(endTimeArr[1])) - time;
-            let etaMinutes = etaTime % 60;
-            let etaHours = (etaTime - etaMinutes) / 60;
-            let etaText = "";
-            if (etaHours > 0) {
-                etaText += etaHours + " hrs ";
-            }
-            etaText += etaMinutes + " mins";
+
+            let etaText = calcEtaTime(time, endTimeArr[0] * 60 + parseInt(endTimeArr[1]));
 
             if (endTime >= time) {
-                addElement([end.name + ": " + endTimeArr[0] + ":" + endTimeArr[1] + " (in " + etaText + ")"], "schedule__item", "today");
+                addElement([end.name + ": " + endTimeArr[0] + ":" + endTimeArr[1] + " (" + etaText + ")"], "schedule__item", "today");
             }
         }
     }
@@ -145,8 +161,10 @@ window.addEventListener("load", (event) => {
         if (time <= hourTime && dayIndex < 6) {
             let texts = [];
     
+            let etaText = calcEtaTime(time, timeArr[0] * 60 + parseInt(timeArr[1]));
+
             texts.push(hour.split(" ")[0]);
-            texts.push(timeArr[0] + ":" + timeArr[1]);
+            texts.push(timeArr[0] + ":" + timeArr[1] + " (" + etaText + ")");
         
             addElement(texts, "schedule__item schedule__item--tram", "trams");
 
@@ -165,15 +183,41 @@ window.addEventListener("load", (event) => {
         if (time <= hourTime && dayIndex < 6) {
             let texts = [];
     
+
+            let etaText = calcEtaTime(time, timeArr[0] * 60 + parseInt(timeArr[1]));
+
             texts.push(hour.split(" ")[0]);
-            texts.push(timeArr[0] + ":" + timeArr[1]);
-            console.log(texts);
+            texts.push(timeArr[0] + ":" + timeArr[1] + " (" + etaText + ")");
+            
             addElement(texts, "schedule__item schedule__item--tram", "trams2");
 
             possibleTrams2 += 1;
         }         
     
         if (possibleTrams2 >= 6) {break;};
+    }
+
+    let possibleBuss = 0;
+
+    for (const hour of buss) {
+        let timeArr = hour.split(" ")[1].split(":");
+        let hourTime = parseInt(timeArr[0]) * 60 + parseInt(timeArr[1]);
+
+        if (time <= hourTime && dayIndex < 6) {
+            let texts = [];
+    
+
+            let etaText = calcEtaTime(time, timeArr[0] * 60 + parseInt(timeArr[1]));
+
+            texts.push(hour.split(" ")[0]);
+            texts.push(timeArr[0] + ":" + timeArr[1] + " (" + etaText + ")");
+            
+            addElement(texts, "schedule__item schedule__item--tram", "buss");
+
+            possibleBuss += 1;
+        }         
+    
+        if (possibleBuss >= 6) {break;};
     }
 });
 
