@@ -56,7 +56,7 @@ function max(x, y) {
     }
 }
 
-const testing = true;
+const testing = false;
 
 window.addEventListener("load", (event) => {
     const date = new Date();
