@@ -17,8 +17,8 @@
 }
 
 body {
-    background-color: var(--bg-main);
     font-family: 'Kanit', sans-serif;
+	background: var(--bg-main);
 }
 
 .title {
@@ -36,7 +36,7 @@ body {
 
 .schedule {
     align-items: center;
-    background: linear-gradient(90deg, var(--bg-schedule), var(--bg-main));
+    background: linear-gradient(90deg, var(--bg-schedule), transparent);
     border-radius: 1rem;
 }
 
@@ -67,6 +67,11 @@ body {
 }
 
 .schedule__item--pause {
+    color: var(--fg-item-pause);
+    background-color: var(--bg-item-pause);
+}
+
+.schedule__item--free {
     color: var(--fg-item-pause);
     background-color: var(--bg-item-pause);
 }
