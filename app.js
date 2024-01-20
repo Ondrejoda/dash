@@ -26,21 +26,59 @@ let trams = [
     "3 18:01", "2 18:13", "3 18:25", "2 18:37", "3 18:49"
 ];
 
+let trams2 = [
+    "11 13:00", "5 13:08", "11 13:15", "5 13:23", "11 13:30", "5 13:38", "11 13:45", "5 13:53",
+    "11 14:00", "5 14:08", "11 14:15", "5 14:23", "11 14:30", "5 14:38", "11 14:45", "5 14:53",
+    "11 15:00", "5 15:08", "11 15:15", "5 15:23", "11 15:30", "5 15:38", "11 15:45", "5 15:53",
+    "11 16:00", "5 16:08", "11 16:15", "5 16:23", "11 16:30", "5 16:38", "11 16:45", "5 16:53",
+    "11 17:00", "5 17:08", "11 17:15", "5 17:23", "11 17:30", "5 17:38", "11 17:45", "5 17:53",
+    "11 18:00", "5 18:08", "11 18:15", "5 18:23", "11 18:30", "11 18:45"
+];
+
+function addElement(elementTexts, elementClass, targetID) {
+    const main = document.createElement("div");
+    main.className = elementClass;
+    for (const elementText of elementTexts) {
+        const para = document.createElement("p");
+        const node = document.createTextNode(elementText);
+        para.appendChild(node);
+        main.appendChild(para);
+    }
+    const element = document.getElementById(targetID);
+    element.appendChild(main);
+}
+
+function max(x, y) {
+    if (y > x) {
+        return y;
+    } else {
+        return x;
+    }
+}
+
+const testing = true;
+
 window.addEventListener("load", (event) => {
     const date = new Date();
     let dayIndex = date.getDay() - 1;
-    // dayIndex = 0;
-    console.log(dayIndex);
+
     if (dayIndex == -1) {
         dayIndex = 6;
     }
 
+    if (testing) {
+        dayIndex = 2;
+    }
+
     let dayArray = week[dayIndex];
 
-    // let time = 13 * 60 + 0
     let time = date.getHours() * 60 + date.getMinutes()
 
-    let empty = true;
+    if (testing) {
+        time = 9 * 60 + 45;
+    }
+
+    let hourCount = 0;
 
     for (const key in dayArray) {
         const hour = dayArray[key];
@@ -49,12 +87,10 @@ window.addEventListener("load", (event) => {
         let hourTime = parseInt(timeArr[0]) * 60 + parseInt(timeArr[1]);
 
         if (time <= hourTime && hour.name != "end") {
-            empty = false;
-            const main = document.createElement("div");
-            main.className = "schedule__item";
-            if (hour.name == "pause" || hour.name == "free") {
-                main.className = "schedule__item schedule__item--pause";
-            }
+            hourCount += 1;
+
+            let texts = [];
+
             let futureTime = dayArray[parseInt(key) + 1];
             let futureTimeArr = futureTime.start.split(":");
             let etaTime = (timeArr[0] * 60 + parseInt(timeArr[1])) - time;
@@ -66,24 +102,18 @@ window.addEventListener("load", (event) => {
             }
             etaText += etaMinutes + " mins";
 
-            let para = document.createElement("p");
-            let node = document.createTextNode(hour.name);
-            para.appendChild(node);
-            let para2 = document.createElement("p");
-            node = document.createTextNode(timeArr[0] + ":" + timeArr[1] + " - " + futureTimeArr[0] + ":" + futureTimeArr[1] + " (in " + etaText + ")");
-            para2.appendChild(node);
-            main.appendChild(para);
-            main.appendChild(para2);
+            texts.push(hour.name);
+            texts.push(timeArr[0] + ":" + timeArr[1] + " - " + futureTimeArr[0] + ":" + futureTimeArr[1] + " (in " + etaText + ")");
 
-            const element = document.getElementById("today");
-            element.appendChild(main);
+            if (hour.name == "pause" || hour.name == "free") {
+                addElement(texts, "schedule__item schedule__item--pause", "today");
+            } else {
+                addElement(texts, "schedule__item", "today");
+            }
         }
     }
 
-    if (empty) {
-        const main = document.createElement("div");
-        main.className = "schedule__item";
-        const para = document.createElement("p");
+    if (hourCount == 0) {
         let node;
 
         if (dayIndex < 5) {
@@ -100,51 +130,50 @@ window.addEventListener("load", (event) => {
             }
             etaText += etaMinutes + " mins";
 
-            if (endTime < time) {
-                node = document.createTextNode("Nothing here!");
-            } else {
-                node = document.createTextNode(end.name + ": " + endTimeArr[0] + ":" + endTimeArr[1] + " (in " + etaText + ")");
+            if (endTime >= time) {
+                addElement([end.name + ": " + endTimeArr[0] + ":" + endTimeArr[1] + " (in " + etaText + ")"], "schedule__item", "today");
             }
-        } else {
-            node = document.createTextNode("Nothing here!");
         }
-
-        para.appendChild(node);
-        main.appendChild(para);
-
-        const element = document.getElementById("today");
-        element.appendChild(main);   
     }
 
-    let possibleTrams = [];
+    let possibleTrams = 0;
 
     for (const hour of trams) {
         let timeArr = hour.split(" ")[1].split(":");
         let hourTime = parseInt(timeArr[0]) * 60 + parseInt(timeArr[1]);
 
-        if (time <= hourTime) {
-            possibleTrams.push(hour);
+        if (time <= hourTime && dayIndex < 6) {
+            let texts = [];
+    
+            texts.push(hour.split(" ")[0]);
+            texts.push(timeArr[0] + ":" + timeArr[1]);
+        
+            addElement(texts, "schedule__item schedule__item--tram", "trams");
+
+            possibleTrams += 1;
         }         
     
-        if (possibleTrams.length >= 10) {break;};
+        if (possibleTrams >= 6) {break;};
     }
 
-    for (const hour of possibleTrams) {
-        const main = document.createElement("div");
-        main.className = "schedule__item schedule__item--tram";
-        let timeArr = hour.split(" ")[1].split(":");
-        const para = document.createElement("p");
-        let node = document.createTextNode(hour.split(" ")[0]);
-        para.appendChild(node);
-        main.appendChild(para);
-        const para2 = document.createElement("p");
-        node = document.createTextNode(timeArr[0] + ":" + timeArr[1]);
-        para2.appendChild(node);
-        main.appendChild(para2);
-        
+    let possibleTrams2 = 0;
 
-        const element = document.getElementById("trams");
-        element.appendChild(main);
+    for (const hour of trams2) {
+        let timeArr = hour.split(" ")[1].split(":");
+        let hourTime = parseInt(timeArr[0]) * 60 + parseInt(timeArr[1]);
+
+        if (time <= hourTime && dayIndex < 6) {
+            let texts = [];
+    
+            texts.push(hour.split(" ")[0]);
+            texts.push(timeArr[0] + ":" + timeArr[1]);
+            console.log(texts);
+            addElement(texts, "schedule__item schedule__item--tram", "trams2");
+
+            possibleTrams2 += 1;
+        }         
+    
+        if (possibleTrams2 >= 6) {break;};
     }
 });
 
